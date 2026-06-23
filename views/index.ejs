@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIRIUS INC - House Hunting Kenya</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .hero-bg { 
+      background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), 
+                  url('https://picsum.photos/id/1015/2000/1200'); 
+      background-size: cover; 
+      background-position: center;
+    }
+    .property-card:hover { transform: translateY(-10px); }
+  </style>
+</head>
+<body class="font-sans bg-gray-50">
+
+  <!-- Navbar -->
+  <nav class="bg-white shadow-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <img src="logo.jpeg" alt="SIRIUS INC" class="w-11 h-11 rounded-full">
+        <div>
+          <h1 class="text-2xl font-bold">SIRIUS INC</h1>
+          <p class="text-xs text-yellow-600">Limitless • Freedom</p>
+        </div>
+      </div>
+      <div class="hidden md:flex gap-8 font-medium">
+        <a href="#how" class="hover:text-yellow-600">How It Works</a>
+        <a href="#pricing" class="hover:text-yellow-600">Pricing</a>
+        <a href="#properties" class="hover:text-yellow-600">Properties</a>
+        <a href="#contact" class="hover:text-yellow-600">Contact</a>
+      </div>
+      <a href="https://wa.me/254111877848" target="_blank" 
+         class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full flex items-center gap-2 font-semibold">
+        <i class="fab fa-whatsapp text-xl"></i> WhatsApp
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero-bg text-white py-32 text-center">
+    <div class="max-w-4xl mx-auto px-6">
+      <h1 class="text-5xl md:text-6xl font-bold mb-6">Find Your Perfect Home in Kenya</h1>
+      <p class="text-2xl mb-8">Singles • Bedsitters • 1 Bedroom • 2 Bedroom Houses</p>
+      <p class="text-lg mb-10">We connect you with verified landlords. Fast. Honest. Affordable.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="#contact" class="bg-yellow-500 text-black px-10 py-5 rounded-full text-xl font-bold hover:bg-yellow-400">Find a House</a>
+        <a href="#contact" class="border-2 border-white px-10 py-5 rounded-full text-xl font-bold hover:bg-white hover:text-black">List Your Property</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how" class="py-20 bg-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-4xl font-bold text-center mb-12">How Sirius House Hunting Works</h2>
+      <div class="grid md:grid-cols-3 gap-10">
+        <div class="text-center">
+          <div class="text-5xl mb-4">📍</div>
+          <h3 class="font-semibold text-xl mb-3">1. Tell Us What You Need</h3>
+          <p class="text-gray-600">Budget, location, house type (Bedsitter, 1BR, 2BR etc.)</p>
+        </div>
+        <div class="text-center">
+          <div class="text-5xl mb-4">🔍</div>
+          <h3 class="font-semibold text-xl mb-3">2. We Search & Verify</h3>
+          <p class="text-gray-600">We scout, take photos/videos and match you with real options</p>
+        </div>
+        <div class="text-center">
+          <div class="text-5xl mb-4">🏠</div>
+          <h3 class="font-semibold text-xl mb-3">3. View & Move In</h3>
+          <p class="text-gray-600">We arrange viewings and support you till you settle</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section id="pricing" class="py-20 bg-gray-100">
+    <div class="max-w-5xl mx-auto px-6">
+      <h2 class="text-4xl font-bold text-center mb-4">Our Pricing</h2>
+      <p class="text-center text-gray-600 mb-12">Transparent & Affordable – No Hidden Costs</p>
+      
+      <div class="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+        <div class="bg-white p-8 rounded-3xl shadow">
+          <h3 class="text-2xl font-semibold mb-6 text-center">For Tenants (House Seekers)</h3>
+          <ul class="space-y-4">
+            <li class="flex items-center gap-3"><i class="fas fa-check text-green-500"></i> Successful Match: <strong>KSh 3,000 – 5,000</strong></li>
+            <li class="flex items-center gap-3"><i class="fas fa-check text-green-500"></i> One-time service fee</li>
+            <li class="flex items-center gap-3"><i class="fas fa-check text-green-500"></i> Includes viewings + negotiation support</li>
+          </ul>
+        </div>
+        
+        <div class="bg-white p-8 rounded-3xl shadow">
+          <h3 class="text-2xl font-semibold mb-6 text-center">For Landlords (Property Owners)</h3>
+          <ul class="space-y-4">
+            <li class="flex items-center gap-3"><i class="fas fa-check text-green-500"></i> Tenant Placement: <strong>50% of One Month's Rent</strong></li>
+            <li class="flex items-center gap-3"><i class="fas fa-check text-green-500"></i> Listing is Free</li>
+            <li class="flex items-center gap-3"><i class="fas fa-check text-green-500"></i> We handle marketing & screening</li>
+          </ul>
+        </div>
+      </div>
+      <p class="text-center mt-10 text-sm text-gray-500">Prices are negotiable depending on location and urgency. Contact us for exact quote.</p>
+    </div>
+  </section>
+
+  <!-- Properties / Gallery (Dynamic) -->
+  <section id="properties" class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-6">
+      <h2 class="text-4xl font-bold text-center mb-12">Recent Properties & Videos</h2>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <% if (properties && properties.length > 0) { %>
+          <% properties.forEach(property => { %>
+            <div class="property-card bg-gray-50 rounded-3xl overflow-hidden shadow">
+              <img src="<%= property.image || 'https://picsum.photos/id/1015/600/400' %>" 
+                   class="w-full h-56 object-cover" alt="<%= property.title %>">
+              <div class="p-5">
+                <p class="font-bold"><%= property.title %></p>
+                <p class="text-2xl font-semibold text-yellow-600">KSh <%= property.price %></p>
+                <p class="text-sm text-gray-500"><%= property.type %> • <%= property.location %></p>
+                <p class="text-sm mt-2"><%= property.description %></p>
+              </div>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <!-- Static placeholders when no properties yet -->
+          <div class="property-card bg-gray-50 rounded-3xl overflow-hidden shadow">
+            <img src="https://picsum.photos/id/1015/600/400" class="w-full h-56 object-cover" alt="2 Bedroom">
+            <div class="p-5">
+              <p class="font-bold">2 Bedroom • KSh 18,000</p>
+              <p class="text-sm text-gray-500">Nairobi Area • Available Now</p>
+            </div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+            <!-- Static Video Section (Always Visible)
+        <div class="property-card bg-gray-50 rounded-3xl overflow-hidden shadow">
+          <video controls class="w-full h-56 object-cover">
+            <source src="YOUR_VIDEO_LINK_HERE.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+          <div class="p-5">
+            <p class="font-bold">1 Bedroom House Tour</p>
+            <p class="text-sm text-gray-500">Watch full video walkthrough</p>
+          </div>
+        </div>
+
+      </div>
+    </div> -->
+
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="py-20 bg-gray-900 text-white">
+    <div class="max-w-4xl mx-auto px-6">
+      <h2 class="text-4xl font-bold text-center mb-12">Ready to Find Your House?</h2>
+      
+      <div class="grid md:grid-cols-2 gap-12">
+        <div>
+          <h3 class="text-2xl mb-6">Contact Us</h3>
+          <a href="https://wa.me/254111877848" target="_blank" class="block text-3xl font-bold hover:text-green-400 mb-6">
+            📱 0111 877 848 (Call / WhatsApp)
+          </a>
+          <a href="mailto:siriusinc75@gmail.com" class="block text-xl hover:text-yellow-400">
+            ✉️ siriusinc75@gmail.com
+          </a>
+          <div class="mt-10">
+            <p class="mb-4">Follow us on all platforms for latest properties</p>
+            <div class="flex gap-6 text-3xl">
+              <i class="fab fa-facebook hover:text-blue-400 cursor-pointer"></i>
+              <i class="fab fa-instagram hover:text-pink-400 cursor-pointer"></i>
+              <i class="fab fa-tiktok hover:text-black cursor-pointer"></i>
+              <i class="fab fa-youtube hover:text-red-500 cursor-pointer"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Working Form Connected to Backend -->
+        <form action="/submit-request" method="POST" class="space-y-6">
+          <input type="text" name="name" placeholder="Full Name" required class="w-full px-6 py-4 rounded-2xl bg-gray-800 border border-gray-700 focus:border-yellow-500 outline-none">
+          <input type="tel" name="phone" placeholder="Phone Number" required class="w-full px-6 py-4 rounded-2xl bg-gray-800 border border-gray-700 focus:border-yellow-500 outline-none">
+          <select name="type" required class="w-full px-6 py-4 rounded-2xl bg-gray-800 border border-gray-700 focus:border-yellow-500 outline-none">
+            <option value="">I am a...</option>
+            <option value="Tenant">Tenant Looking for House</option>
+            <option value="Landlord">Landlord (List Property)</option>
+          </select>
+          <textarea name="message" rows="5" placeholder="Tell us your requirements (budget, location, house type...)" required class="w-full px-6 py-4 rounded-2xl bg-gray-800 border border-gray-700 focus:border-yellow-500 outline-none"></textarea>
+          <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-5 rounded-2xl font-bold text-xl">Submit Request</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Floating WhatsApp -->
+  <a href="https://wa.me/254111877848" target="_blank" 
+     class="fixed bottom-6 right-6 bg-green-500 w-16 h-16 rounded-full flex items-center justify-center text-4xl shadow-2xl hover:scale-110 transition z-50">
+    <i class="fab fa-whatsapp text-white"></i>
+  </a>
+
+  <footer class="bg-black text-white py-10 text-center">
+    <p class="text-xl font-semibold">SIRIUS INC © 2026</p>
+    <p>House Hunting • Relocation • Freedom Through Service</p>
+  </footer>
+</body>
+</html>

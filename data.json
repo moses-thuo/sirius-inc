@@ -1,0 +1,15 @@
+{
+  "properties": [],
+  "requests": [
+    {
+      "id": 1782213258752,
+      "date": "2026-06-23",
+      "name": "Moses Thuo",
+      "phone": "0111877848",
+      "type": "Tenant",
+      "message": "12345",
+      "status": "New"
+    }
+  ],
+  "logs": []
+}

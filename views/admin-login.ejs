@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - SIRIUS INC</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 min-h-screen flex items-center justify-center font-sans">
+  <div class="max-w-md w-full bg-white rounded-3xl shadow-2xl p-10">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">SIRIUS INC</h1>
+      <p class="text-yellow-600">Admin Portal</p>
+    </div>
+    
+    <form action="/admin-login" method="POST">
+      <input 
+        type="password" 
+        name="password" 
+        placeholder="Enter Admin Password" 
+        class="w-full px-6 py-4 border border-gray-300 rounded-2xl focus:outline-none focus:border-yellow-500 text-lg"
+        required>
+      
+      <button 
+        type="submit" 
+        class="w-full mt-6 bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-4 rounded-2xl text-xl">
+        Login
+      </button>
+    </form>
+  </div>
+</body>
+</html>
