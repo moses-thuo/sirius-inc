@@ -1,17 +1,21 @@
+
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;   // ← This line is important
+
 const DATA_FILE = path.join(__dirname, 'data.json');
 
-const ADMIN_PASSWORD = "sirius2026"; // ← CHANGE THIS IMMEDIATELY!
+const ADMIN_PASSWORD = "sirius2026"; // Change this later!
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
 app.use(express.static('public'));
 
 // Initialize data
@@ -105,7 +109,5 @@ app.post('/delete-property', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 SIRIUS INC Server running on http://localhost:${PORT}`);
-  console.log(`Website: http://localhost:${PORT}`);
-  console.log(`Admin: http://localhost:${PORT}/admin-login`);
+  console.log(`Server running on port ${PORT}`);
 });
