@@ -1,14 +1,13 @@
 {
-  "name": "house-hunt",
+  "name": "sirius-inc",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "SIRIUS INC House Hunting Platform",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  
   "dependencies": {
     "body-parser": "^2.3.0",
     "ejs": "^6.0.1",
