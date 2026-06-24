@@ -107,11 +107,13 @@
     </div>
   </section>
 
-  <!-- Properties / Gallery (Dynamic) -->
+  <!-- Properties & Videos -->
   <section id="properties" class="py-20 bg-white">
     <div class="max-w-7xl mx-auto px-6">
       <h2 class="text-4xl font-bold text-center mb-12">Recent Properties & Videos</h2>
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+        <!-- Dynamic Properties from Database -->
         <% if (properties && properties.length > 0) { %>
           <% properties.forEach(property => { %>
             <div class="property-card bg-gray-50 rounded-3xl overflow-hidden shadow">
@@ -121,23 +123,15 @@
                 <p class="font-bold"><%= property.title %></p>
                 <p class="text-2xl font-semibold text-yellow-600">KSh <%= property.price %></p>
                 <p class="text-sm text-gray-500"><%= property.type %> • <%= property.location %></p>
-                <p class="text-sm mt-2"><%= property.description %></p>
+                <% if (property.description) { %>
+                  <p class="text-sm mt-2 text-gray-600"><%= property.description %></p>
+                <% } %>
               </div>
             </div>
           <% }) %>
-        <% } else { %>
-          <!-- Static placeholders when no properties yet -->
-          <div class="property-card bg-gray-50 rounded-3xl overflow-hidden shadow">
-            <img src="https://picsum.photos/id/1015/600/400" class="w-full h-56 object-cover" alt="2 Bedroom">
-            <div class="p-5">
-              <p class="font-bold">2 Bedroom • KSh 18,000</p>
-              <p class="text-sm text-gray-500">Nairobi Area • Available Now</p>
-            </div>
-          </div>
         <% } %>
-      </div>
-    </div>
-            <!-- Static Video Section (Always Visible)
+
+        <!-- Static Video Section (Always Visible) -->
         <div class="property-card bg-gray-50 rounded-3xl overflow-hidden shadow">
           <video controls class="w-full h-56 object-cover">
             <source src="YOUR_VIDEO_LINK_HERE.mp4" type="video/mp4">
@@ -150,8 +144,7 @@
         </div>
 
       </div>
-    </div> -->
-
+    </div>
   </section>
 
   <!-- Contact -->
@@ -179,7 +172,7 @@
           </div>
         </div>
 
-        <!-- Working Form Connected to Backend -->
+        <!-- Working Form -->
         <form action="/submit-request" method="POST" class="space-y-6">
           <input type="text" name="name" placeholder="Full Name" required class="w-full px-6 py-4 rounded-2xl bg-gray-800 border border-gray-700 focus:border-yellow-500 outline-none">
           <input type="tel" name="phone" placeholder="Phone Number" required class="w-full px-6 py-4 rounded-2xl bg-gray-800 border border-gray-700 focus:border-yellow-500 outline-none">
