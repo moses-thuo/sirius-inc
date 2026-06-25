@@ -1,75 +1,92 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const fs = require('fs');
-const path = require('path');
+const mongoose = require('mongoose');
 const multer = require('multer');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const DATA_FILE = path.join(__dirname, 'data.json');
-const ADMIN_PASSWORD = "sirius2026"; // Change this later!
+// ===================== MONGOOSE CONNECTION =====================
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('✅ Connected to MongoDB Atlas'))
+  .catch(err => console.error('❌ MongoDB Connection Error:', err));
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-// Multer Setup - Supports both images and videos
+// Multer Setup
 const upload = multer({ 
   dest: 'public/uploads/',
-  limits: { fileSize: 50 * 1024 * 1024 } // 50MB limit
+  limits: { fileSize: 50 * 1024 * 1024 }
 });
 
-// Create uploads folder
 if (!fs.existsSync('public/uploads')) {
   fs.mkdirSync('public/uploads', { recursive: true });
 }
 
-// Initialize data file
-if (!fs.existsSync(DATA_FILE)) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify({
-    properties: [],
-    requests: [],
-    logs: []
-  }, null, 2));
-}
-
-function loadData() {
-  return JSON.parse(fs.readFileSync(DATA_FILE));
-}
-
-function saveData(data) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-}
-
-// ===================== PUBLIC ROUTES =====================
-app.get('/', (req, res) => {
-  const data = loadData();
-  res.render('index', { properties: data.properties });
+// ===================== SCHEMAS =====================
+const PropertySchema = new mongoose.Schema({
+  title: String,
+  price: Number,
+  type: String,
+  location: String,
+  description: String,
+  media: String,
+  isVideo: Boolean,
+  date: String
 });
 
-// Customer Request
-app.post('/submit-request', (req, res) => {
+const RequestSchema = new mongoose.Schema({
+  name: String,
+  phone: String,
+  type: String,
+  message: String,
+  date: String,
+  status: String
+});
+
+const VisitorSchema = new mongoose.Schema({
+  date: String,
+  count: { type: Number, default: 1 }
+});
+
+const Property = mongoose.model('Property', PropertySchema);
+const Request = mongoose.model('Request', RequestSchema);
+const Visitor = mongoose.model('Visitor', VisitorSchema);
+
+// ===================== MIDDLEWARE - Visitor Counter =====================
+app.use(async (req, res, next) => {
+  if (req.path === '/' || req.path === '/dashboard') {
+    const today = new Date().toISOString().split('T')[0];
+    await Visitor.findOneAndUpdate(
+      { date: today },
+      { $inc: { count: 1 } },
+      { upsert: true, new: true }
+    );
+  }
+  next();
+});
+
+// ===================== PUBLIC ROUTES =====================
+app.get('/', async (req, res) => {
+  const properties = await Property.find().sort({ date: -1 });
+  res.render('index', { properties });
+});
+
+app.post('/submit-request', async (req, res) => {
   const { name, phone, type, message } = req.body;
-  const data = loadData();
-
-  const newRequest = {
-    id: Date.now(),
+  
+  await Request.create({
+    name, phone, type, message,
     date: new Date().toISOString().split('T')[0],
-    name,
-    phone,
-    type,
-    message,
     status: "New"
-  };
+  });
 
-  data.requests.push(newRequest);
-  saveData(data);
-
-  console.log("🔔 NEW CUSTOMER REQUEST");
-  console.log(`Name: ${name} | Phone: ${phone}`);
-
+  console.log(`🔔 NEW REQUEST: ${name} - ${phone}`);
+  
   res.send(`
     <h2 style="text-align:center;padding:60px;font-family:sans-serif;color:green;">
       ✅ Request Received Successfully!<br><br>
@@ -80,6 +97,8 @@ app.post('/submit-request', (req, res) => {
 });
 
 // ===================== ADMIN ROUTES =====================
+const ADMIN_PASSWORD = "sirius2026";
+
 app.get('/admin-login', (req, res) => res.render('admin-login'));
 
 app.post('/admin-login', (req, res) => {
@@ -90,27 +109,27 @@ app.post('/admin-login', (req, res) => {
   }
 });
 
-app.get('/dashboard', (req, res) => {
-  const data = loadData();
-  res.render('dashboard', { data });
+app.get('/dashboard', async (req, res) => {
+  const properties = await Property.find().sort({ date: -1 });
+  const requests = await Request.find().sort({ date: -1 });
+  const visitors = await Visitor.find().sort({ date: -1 }).limit(7);
+  
+  res.render('dashboard', { properties, requests, visitors });
 });
 
-// FIXED: Add Property with Media Upload
-app.post('/add-property', upload.single('media'), (req, res) => {
+// Add Property
+app.post('/add-property', upload.single('media'), async (req, res) => {
   try {
     const { title, price, type, location, description } = req.body;
-    const data = loadData();
-
+    
     let mediaUrl = "https://picsum.photos/id/1015/600/400";
-
     if (req.file) {
       mediaUrl = `/uploads/${req.file.filename}`;
     } else if (req.body.image) {
       mediaUrl = req.body.image;
     }
 
-    data.properties.push({
-      id: Date.now(),
+    await Property.create({
       title: title || "Untitled Property",
       price: parseFloat(price) || 0,
       type: type || "",
@@ -121,20 +140,16 @@ app.post('/add-property', upload.single('media'), (req, res) => {
       date: new Date().toISOString().split('T')[0]
     });
 
-    saveData(data);
     res.redirect('/dashboard');
   } catch (error) {
-    console.error("Add Property Error:", error);
-    res.status(500).send("Error adding property. Please try again or check server logs.");
+    console.error(error);
+    res.status(500).send("Error adding property");
   }
 });
 
 // Delete Property
-app.post('/delete-property', (req, res) => {
-  const { id } = req.body;
-  const data = loadData();
-  data.properties = data.properties.filter(p => p.id != id);
-  saveData(data);
+app.post('/delete-property', async (req, res) => {
+  await Property.findByIdAndDelete(req.body.id);
   res.redirect('/dashboard');
 });
 
