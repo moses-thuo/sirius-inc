@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 // ===================== MONGOOSE CONNECTION =====================
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✅ Connected to MongoDB Atlas'))
-  .catch(err => console.error('❌ MongoDB Connection Error:', err));
+  .catch(err => console.error('❌ MongoDB Error:', err));
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -21,10 +21,9 @@ app.use(express.static('public'));
 // Multer Setup
 const upload = multer({ 
   dest: 'public/uploads/',
-  limits: { fileSize: 50 * 1024 * 1024 } // 50MB
+  limits: { fileSize: 50 * 1024 * 1024 }
 });
 
-// Create uploads folder
 if (!fs.existsSync('public/uploads')) {
   fs.mkdirSync('public/uploads', { recursive: true });
 }
@@ -59,20 +58,20 @@ const Property = mongoose.model('Property', PropertySchema);
 const Request = mongoose.model('Request', RequestSchema);
 const Visitor = mongoose.model('Visitor', VisitorSchema);
 
-// ===================== VISITOR COUNTER =====================
+// ===================== VISITOR COUNTER (Fixed) =====================
 app.use(async (req, res, next) => {
   if (req.path === '/' || req.path === '/dashboard') {
     const today = new Date().toISOString().split('T')[0];
     await Visitor.findOneAndUpdate(
       { date: today },
       { $inc: { count: 1 } },
-      { upsert: true, new: true }
-    );
+      { upsert: true, new: true }   // This line was causing warning
+    ).catch(err => console.error("Visitor error:", err));
   }
   next();
 });
 
-// ===================== PUBLIC ROUTES =====================
+// ===================== ROUTES =====================
 app.get('/', async (req, res) => {
   const properties = await Property.find().sort({ date: -1 });
   res.render('index', { properties });
@@ -80,28 +79,16 @@ app.get('/', async (req, res) => {
 
 app.post('/submit-request', async (req, res) => {
   const { name, phone, type, message } = req.body;
-  
   await Request.create({
-    name,
-    phone,
-    type,
-    message,
+    name, phone, type, message,
     date: new Date().toISOString().split('T')[0],
     status: "New"
   });
-
   console.log(`🔔 NEW REQUEST: ${name} - ${phone}`);
-  
-  res.send(`
-    <h2 style="text-align:center;padding:60px;font-family:sans-serif;color:green;">
-      ✅ Request Received Successfully!<br><br>
-      We will contact you soon via WhatsApp.<br><br>
-      <a href="/" style="color:#eab308">← Back to Home</a>
-    </h2>
-  `);
+  res.send(`<h2 style="text-align:center;padding:60px;color:green;">✅ Request Received!</h2>`);
 });
 
-// ===================== ADMIN ROUTES =====================
+// Admin Routes
 const ADMIN_PASSWORD = "sirius2026";
 
 app.get('/admin-login', (req, res) => res.render('admin-login'));
@@ -115,11 +102,16 @@ app.post('/admin-login', (req, res) => {
 });
 
 app.get('/dashboard', async (req, res) => {
-  const properties = await Property.find().sort({ date: -1 });
-  const requests = await Request.find().sort({ date: -1 });
-  const visitors = await Visitor.find().sort({ date: -1 }).limit(7);
-  
-  res.render('dashboard', { properties, requests, visitors });
+  try {
+    const properties = await Property.find().sort({ date: -1 });
+    const requests = await Request.find().sort({ date: -1 });
+    const visitors = await Visitor.find().sort({ date: -1 }).limit(7);
+    
+    res.render('dashboard', { properties, requests, visitors });
+  } catch (error) {
+    console.error("Dashboard Error:", error);
+    res.status(500).send("Server Error - Check Logs");
+  }
 });
 
 // Add Property
@@ -128,11 +120,8 @@ app.post('/add-property', upload.single('media'), async (req, res) => {
     const { title, price, type, location, description } = req.body;
     
     let mediaUrl = "https://picsum.photos/id/1015/600/400";
-    if (req.file) {
-      mediaUrl = `/uploads/${req.file.filename}`;
-    } else if (req.body.image) {
-      mediaUrl = req.body.image;
-    }
+    if (req.file) mediaUrl = `/uploads/${req.file.filename}`;
+    else if (req.body.image) mediaUrl = req.body.image;
 
     await Property.create({
       title: title || "Untitled Property",
@@ -148,7 +137,7 @@ app.post('/add-property', upload.single('media'), async (req, res) => {
     res.redirect('/dashboard');
   } catch (error) {
     console.error("Add Property Error:", error);
-    res.status(500).send("Error adding property. Please try again.");
+    res.status(500).send("Error adding property");
   }
 });
 
