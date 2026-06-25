@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,9 +21,10 @@ app.use(express.static('public'));
 // Multer Setup
 const upload = multer({ 
   dest: 'public/uploads/',
-  limits: { fileSize: 50 * 1024 * 1024 }
+  limits: { fileSize: 50 * 1024 * 1024 } // 50MB
 });
 
+// Create uploads folder
 if (!fs.existsSync('public/uploads')) {
   fs.mkdirSync('public/uploads', { recursive: true });
 }
@@ -57,7 +59,7 @@ const Property = mongoose.model('Property', PropertySchema);
 const Request = mongoose.model('Request', RequestSchema);
 const Visitor = mongoose.model('Visitor', VisitorSchema);
 
-// ===================== MIDDLEWARE - Visitor Counter =====================
+// ===================== VISITOR COUNTER =====================
 app.use(async (req, res, next) => {
   if (req.path === '/' || req.path === '/dashboard') {
     const today = new Date().toISOString().split('T')[0];
@@ -80,7 +82,10 @@ app.post('/submit-request', async (req, res) => {
   const { name, phone, type, message } = req.body;
   
   await Request.create({
-    name, phone, type, message,
+    name,
+    phone,
+    type,
+    message,
     date: new Date().toISOString().split('T')[0],
     status: "New"
   });
@@ -142,8 +147,8 @@ app.post('/add-property', upload.single('media'), async (req, res) => {
 
     res.redirect('/dashboard');
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Error adding property");
+    console.error("Add Property Error:", error);
+    res.status(500).send("Error adding property. Please try again.");
   }
 });
 
