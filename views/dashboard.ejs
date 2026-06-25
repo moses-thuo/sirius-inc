@@ -9,106 +9,107 @@
 </head>
 <body class="bg-gray-100">
   <div class="max-w-7xl mx-auto p-6">
+
+    <!-- Header -->
     <div class="flex justify-between items-center mb-10">
       <div>
         <h1 class="text-4xl font-bold text-gray-900">SIRIUS INC Dashboard</h1>
         <p class="text-gray-600">House Hunting Management System</p>
       </div>
-      <a href="/" target="_blank" class="bg-white px-6 py-3 rounded-full shadow hover:bg-gray-50 font-medium">
+      <a href="/" target="_blank" class="bg-white px-6 py-3 rounded-full shadow hover:bg-gray-50 font-medium flex items-center gap-2">
         👀 View Live Website
       </a>
     </div>
 
-    <!-- Add New Property -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-      <div class="lg:col-span-1 bg-white p-8 rounded-3xl shadow">
-        <h2 class="text-2xl font-semibold mb-6 flex items-center gap-2">
-          <i class="fas fa-plus"></i> Add New Property / Video
-        </h2>
-        <form action="/add-property" method="POST" enctype="multipart/form-data" class="space-y-5">
-          <input type="text" name="title" placeholder="Property Title" required class="w-full p-4 border rounded-2xl">
-          <input type="number" name="price" placeholder="Price (KSh)" required class="w-full p-4 border rounded-2xl">
-          <input type="text" name="type" placeholder="Bedsitter, 1BR, 2BR..." required class="w-full p-4 border rounded-2xl">
-          <input type="text" name="location" placeholder="Location" required class="w-full p-4 border rounded-2xl">
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Upload Photo or Video</label>
-            <input type="file" name="media" accept="image/*,video/*" class="w-full p-4 border rounded-2xl bg-gray-50">
-            <p class="text-xs text-gray-500 mt-1">JPG, PNG, MP4 supported</p>
-          </div>
-
-          <textarea name="description" placeholder="Description (optional)" rows="3" class="w-full p-4 border rounded-2xl"></textarea>
-          
-          <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-4 rounded-2xl font-bold text-lg">
-            Add Property / Video
-          </button>
-        </form>
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div class="bg-white p-6 rounded-3xl shadow text-center">
+        <h3 class="text-5xl font-bold text-yellow-600"><%= properties ? properties.length : 0 %></h3>
+        <p class="text-gray-600 mt-2">Total Properties</p>
       </div>
-
-      <!-- Statistics -->
-      <div class="lg:col-span-2 grid grid-cols-2 gap-6">
-        <div class="bg-white p-8 rounded-3xl shadow text-center">
-          <h3 class="text-4xl font-bold text-yellow-600"><%= data.properties ? data.properties.length : 0 %></h3>
-          <p class="text-gray-600 mt-2">Total Properties</p>
-        </div>
-        <div class="bg-white p-8 rounded-3xl shadow text-center">
-          <h3 class="text-4xl font-bold text-green-600"><%= data.requests ? data.requests.length : 0 %></h3>
-          <p class="text-gray-600 mt-2">Customer Inquiries</p>
-        </div>
+      <div class="bg-white p-6 rounded-3xl shadow text-center">
+        <h3 class="text-5xl font-bold text-green-600"><%= requests ? requests.length : 0 %></h3>
+        <p class="text-gray-600 mt-2">Customer Inquiries</p>
+      </div>
+      <div class="bg-white p-6 rounded-3xl shadow text-center">
+        <h3 class="text-5xl font-bold text-blue-600">Coming Soon</h3>
+        <p class="text-gray-600 mt-2">Total Visitors</p>
       </div>
     </div>
 
+    <!-- Add New Property -->
+    <div class="bg-white p-8 rounded-3xl shadow mb-12">
+      <h2 class="text-2xl font-semibold mb-6 flex items-center gap-2">
+        <i class="fas fa-plus"></i> Add New Property / Video
+      </h2>
+      <form action="/add-property" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <input type="text" name="title" placeholder="Property Title" required class="p-4 border rounded-2xl">
+        <input type="number" name="price" placeholder="Price (KSh)" required class="p-4 border rounded-2xl">
+        <input type="text" name="type" placeholder="Bedsitter, 1BR, 2BR..." required class="p-4 border rounded-2xl">
+        <input type="text" name="location" placeholder="Location" required class="p-4 border rounded-2xl">
+        
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Upload Photo or Video</label>
+          <input type="file" name="media" accept="image/*,video/*" class="w-full p-4 border rounded-2xl bg-gray-50">
+          <p class="text-xs text-gray-500 mt-1">JPG, PNG, MP4 (max 50MB)</p>
+        </div>
+
+        <textarea name="description" placeholder="Description (optional)" rows="3" class="md:col-span-2 p-4 border rounded-2xl"></textarea>
+        
+        <button type="submit" class="md:col-span-2 bg-yellow-500 hover:bg-yellow-600 text-black py-4 rounded-2xl font-bold text-lg">
+          Add Property / Video
+        </button>
+      </form>
+    </div>
+
     <!-- Customer Inquiries -->
-    <div class="mt-12">
-      <h2 class="text-2xl font-semibold mb-6">📩 Customer Inquiries</h2>
-      <% if (data.requests && data.requests.length > 0) { %>
+    <div class="mb-12">
+      <h2 class="text-2xl font-semibold mb-6">📩 Recent Customer Inquiries (<%= requests ? requests.length : 0 %>)</h2>
+      <% if (requests && requests.length > 0) { %>
         <div class="space-y-6">
-          <% data.requests.slice().reverse().forEach(req => { %>
+          <% requests.slice().reverse().forEach(req => { %>
             <div class="bg-white p-6 rounded-3xl shadow">
-              <div class="flex justify-between items-start">
+              <div class="flex justify-between">
                 <div>
-                  <strong class="text-lg"><%= req.name || 'N/A' %></strong> 
-                  <span class="text-gray-500">• <%= req.phone || 'N/A' %></span>
+                  <strong><%= req.name || 'N/A' %></strong> 
+                  <span class="text-gray-500"> • <%= req.phone || 'N/A' %></span>
                 </div>
-                <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full"><%= req.date || 'N/A' %></span>
+                <span class="text-sm text-gray-500"><%= req.date %></span>
               </div>
-              <p class="mt-2 font-medium"><%= req.type || '' %></p>
-              <p class="text-gray-600 mt-3"><%= req.message || 'No message' %></p>
+              <p class="mt-2 font-medium text-gray-700"><%= req.type %></p>
+              <p class="text-gray-600 mt-2"><%= req.message %></p>
             </div>
           <% }) %>
         </div>
       <% } else { %>
-        <p class="text-gray-500 bg-white p-12 rounded-3xl text-center">No inquiries yet.</p>
+        <p class="text-gray-500 bg-white p-16 rounded-3xl text-center">No customer inquiries yet.</p>
       <% } %>
     </div>
 
     <!-- Properties -->
-    <div class="mt-12">
-      <h2 class="text-2xl font-semibold mb-6">🏠 Properties & Videos (<%= data.properties ? data.properties.length : 0 %>)</h2>
+    <div>
+      <h2 class="text-2xl font-semibold mb-6">🏠 Properties & Videos (<%= properties ? properties.length : 0 %>)</h2>
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <% if (data.properties && data.properties.length > 0) { %>
-          <% data.properties.slice().reverse().forEach(property => { %>
+        <% if (properties && properties.length > 0) { %>
+          <% properties.slice().reverse().forEach(property => { %>
             <div class="bg-white rounded-3xl shadow overflow-hidden">
-              <% 
-                let mediaSrc = property.media || property.image || 'https://picsum.photos/id/1015/600/400';
-                let isVideo = property.isVideo || (mediaSrc && mediaSrc.includes('.mp4'));
-              %>
-              <% if (isVideo) { %>
+              <% if (property.isVideo) { %>
                 <video controls class="w-full h-48 object-cover">
-                  <source src="<%= mediaSrc %>" type="video/mp4">
+                  <source src="<%= property.media %>" type="video/mp4">
                 </video>
               <% } else { %>
-                <img src="<%= mediaSrc %>" class="w-full h-48 object-cover" alt="<%= property.title %>">
+                <img src="<%= property.media || 'https://picsum.photos/id/1015/600/400' %>" 
+                     class="w-full h-48 object-cover" alt="<%= property.title %>">
               <% } %>
               <div class="p-5">
-                <h3 class="font-bold"><%= property.title || 'Untitled' %></h3>
-                <p class="text-2xl font-semibold text-yellow-600">KSh <%= property.price || 0 %></p>
+                <h3 class="font-bold text-lg"><%= property.title %></h3>
+                <p class="text-2xl font-semibold text-yellow-600">KSh <%= property.price %></p>
                 <p class="text-sm text-gray-500"><%= property.type %> • <%= property.location %></p>
                 <% if (property.description) { %>
-                  <p class="text-sm mt-2 text-gray-600"><%= property.description %></p>
+                  <p class="text-sm mt-3 text-gray-600"><%= property.description %></p>
                 <% } %>
                 <form action="/delete-property" method="POST" class="mt-4">
-                  <input type="hidden" name="id" value="<%= property.id %>">
+                  <input type="hidden" name="id" value="<%= property._id || property.id %>">
                   <button type="submit" class="text-red-600 hover:text-red-700 text-sm">🗑 Delete</button>
                 </form>
               </div>
