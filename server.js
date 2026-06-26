@@ -11,28 +11,23 @@ const PORT = process.env.PORT || 3000;
 // ===================== MONGO CONNECTION =====================
 mongoose.connect(process.env.MONGODB_URI, {
   serverSelectionTimeoutMS: 20000,
-  socketTimeoutMS: 45000,
 })
-.then(() => console.log('✅ MongoDB Connected Successfully'))
-.catch(err => console.error('❌ MongoDB Connection Failed:', err.message));
+.then(() => console.log('✅ MongoDB Connected'))
+.catch(err => console.error('❌ MongoDB Error:', err.message));
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-// Multer Setup
-const upload = multer({ 
-  dest: 'public/uploads/',
-  limits: { fileSize: 50 * 1024 * 1024 }
-});
-
+// Multer
+const upload = multer({ dest: 'public/uploads/' });
 if (!fs.existsSync('public/uploads')) {
   fs.mkdirSync('public/uploads', { recursive: true });
 }
 
-// ===================== SCHEMAS =====================
-const PropertySchema = new mongoose.Schema({
+// ===================== SCHEMAS (Defined Once) =====================
+const Property = mongoose.model('Property', new mongoose.Schema({
   title: String,
   price: Number,
   type: String,
@@ -41,47 +36,48 @@ const PropertySchema = new mongoose.Schema({
   media: String,
   isVideo: Boolean,
   date: String
-});
+}));
 
-const RequestSchema = new mongoose.Schema({
+const Request = mongoose.model('Request', new mongoose.Schema({
   name: String,
   phone: String,
   type: String,
   message: String,
   date: String,
   status: String
-});
+}));
 
-const Property = mongoose.model('Property', PropertySchema);
-const Request = mongoose.model('Request', RequestSchema);
+// Define Visitor model only once
+const Visitor = mongoose.models.Visitor || mongoose.model('Visitor', new mongoose.Schema({
+  date: String,
+  count: { type: Number, default: 1 }
+}));
 
-// ===================== VISITOR COUNTER (Public Only) =====================
+// ===================== VISITOR COUNTER =====================
 app.use(async (req, res, next) => {
   if (req.path === '/') {
     try {
       const today = new Date().toISOString().split('T')[0];
-      await mongoose.model('Visitor', new mongoose.Schema({ 
-        date: String, 
-        count: { type: Number, default: 1 } 
-      })).findOneAndUpdate(
-        { date: today }, 
-        { $inc: { count: 1 } }, 
+      await Visitor.findOneAndUpdate(
+        { date: today },
+        { $inc: { count: 1 } },
         { upsert: true }
       );
     } catch (e) {
+      // Silent fail - don't break the site
       console.error("Visitor counter error:", e.message);
     }
   }
   next();
 });
 
-// ===================== PUBLIC ROUTES =====================
+// ===================== ROUTES =====================
 app.get('/', async (req, res) => {
   try {
     const properties = await Property.find().sort({ date: -1 });
     res.render('index', { properties });
   } catch (error) {
-    console.error("Homepage Error:", error.message);
+    console.error("Homepage Error:", error);
     res.render('index', { properties: [] });
   }
 });
@@ -93,25 +89,20 @@ app.post('/submit-request', async (req, res) => {
       date: new Date().toISOString().split('T')[0],
       status: "New"
     });
-    console.log(`🔔 NEW REQUEST: ${req.body.name || 'Unknown'}`);
-    res.send(`<h2 style="text-align:center;padding:60px;color:green;">✅ Request Received Successfully!</h2>`);
-  } catch (error) {
-    console.error("Request Error:", error);
-    res.send(`<h2 style="text-align:center;padding:60px;color:red;">Error submitting request. Please try again.</h2>`);
+    console.log(`🔔 NEW REQUEST: ${req.body.name}`);
+    res.send(`<h2 style="text-align:center;padding:60px;color:green;">✅ Request Received!</h2>`);
+  } catch (e) {
+    res.send(`<h2 style="text-align:center;padding:60px;color:red;">Error. Please try again.</h2>`);
   }
 });
 
-// ===================== ADMIN ROUTES =====================
 const ADMIN_PASSWORD = "sirius2026";
 
 app.get('/admin-login', (req, res) => res.render('admin-login'));
 
 app.post('/admin-login', (req, res) => {
-  if (req.body.password === ADMIN_PASSWORD) {
-    res.redirect('/dashboard');
-  } else {
-    res.send('<h3 style="color:red;text-align:center;margin-top:100px">Wrong Password. <a href="/admin-login">Try Again</a></h3>');
-  }
+  if (req.body.password === ADMIN_PASSWORD) res.redirect('/dashboard');
+  else res.send('<h3 style="color:red;text-align:center;margin-top:100px">Wrong Password. <a href="/admin-login">Try Again</a></h3>');
 });
 
 app.get('/dashboard', async (req, res) => {
@@ -120,18 +111,15 @@ app.get('/dashboard', async (req, res) => {
     const requests = await Request.find().sort({ date: -1 });
     res.render('dashboard', { properties, requests });
   } catch (error) {
-    console.error("Dashboard Error:", error.message);
+    console.error("Dashboard Error:", error);
     res.render('dashboard', { properties: [], requests: [] });
   }
 });
 
-// Add Property
 app.post('/add-property', upload.single('media'), async (req, res) => {
   try {
     let mediaUrl = req.body.image || "https://picsum.photos/id/1015/600/400";
-    if (req.file) {
-      mediaUrl = `/uploads/${req.file.filename}`;
-    }
+    if (req.file) mediaUrl = `/uploads/${req.file.filename}`;
 
     await Property.create({
       title: req.body.title || "Untitled Property",
@@ -143,24 +131,18 @@ app.post('/add-property', upload.single('media'), async (req, res) => {
       isVideo: req.file ? req.file.mimetype.startsWith('video') : false,
       date: new Date().toISOString().split('T')[0]
     });
-
     res.redirect('/dashboard');
-  } catch (error) {
-    console.error("Add Property Error:", error);
-    res.status(500).send("Error adding property. Please try again.");
+  } catch (e) {
+    console.error(e);
+    res.status(500).send("Error adding property");
   }
 });
 
-// Delete Property
 app.post('/delete-property', async (req, res) => {
-  try {
-    await Property.findByIdAndDelete(req.body.id);
-    res.redirect('/dashboard');
-  } catch (error) {
-    res.redirect('/dashboard');
-  }
+  await Property.findByIdAndDelete(req.body.id);
+  res.redirect('/dashboard');
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 SIRIUS INC Server running on port ${PORT}`);
+  console.log(`🚀 SIRIUS INC running on port ${PORT}`);
 });
