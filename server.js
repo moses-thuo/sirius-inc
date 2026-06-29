@@ -3,13 +3,14 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
+const nodemailer = require('nodemailer');
 const path = require('path');
 const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ===================== CLOUDINARY CONFIG =====================
+// ===================== CLOUDINARY =====================
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -28,7 +29,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-// Multer (temporary local storage)
+// Multer Setup
 const upload = multer({ dest: 'public/uploads/' });
 if (!fs.existsSync('public/uploads')) {
   fs.mkdirSync('public/uploads', { recursive: true });
@@ -56,7 +57,6 @@ const Request = mongoose.model('Request', new mongoose.Schema({
 }));
 
 // ===================== VISITOR COUNTER =====================
-// Visitor Counter (Fixed - Defined Once)
 const Visitor = mongoose.models.Visitor || mongoose.model('Visitor', new mongoose.Schema({
   date: String,
   count: { type: Number, default: 1 }
@@ -91,14 +91,44 @@ app.get('/', async (req, res) => {
 
 app.post('/submit-request', async (req, res) => {
   try {
+    const { name, phone, type, message } = req.body;
+
     await Request.create({
-      ...req.body,
+      name, phone, type, message,
       date: new Date().toISOString().split('T')[0],
       status: "New"
     });
-    console.log(`🔔 NEW REQUEST: ${req.body.name}`);
-    res.send(`<h2 style="text-align:center;padding:60px;color:green;">✅ Request Received!</h2>`);
-  } catch (e) {
+
+    // Email Notification
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_APP_PASS
+      }
+    });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: process.env.EMAIL_USER,
+      subject: `🔔 New Request from ${name}`,
+      html: `
+        <h2>New Customer Request</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Phone:</strong> ${phone}</p>
+        <p><strong>Type:</strong> ${type}</p>
+        <p><strong>Message:</strong> ${message}</p>
+        <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+        <hr>
+        <p><a href="https://sirius-inc.onrender.com/admin-login">Go to Dashboard</a></p>
+      `
+    });
+
+    console.log(`📧 Email sent for ${name}`);
+
+    res.send(`<h2 style="text-align:center;padding:60px;color:green;">✅ Request Received! We will contact you soon.</h2>`);
+  } catch (error) {
+    console.error("Request Error:", error);
     res.send(`<h2 style="text-align:center;padding:60px;color:red;">Error. Please try again.</h2>`);
   }
 });
@@ -134,7 +164,7 @@ app.post('/add-property', upload.single('media'), async (req, res) => {
         resource_type: req.file.mimetype.startsWith('video') ? 'video' : 'image'
       });
       mediaUrl = result.secure_url;
-      fs.unlinkSync(req.file.path); // Delete local file
+      fs.unlinkSync(req.file.path);
     }
 
     await Property.create({
