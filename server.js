@@ -56,14 +56,23 @@ const Request = mongoose.model('Request', new mongoose.Schema({
 }));
 
 // ===================== VISITOR COUNTER =====================
+// Visitor Counter (Fixed - Defined Once)
+const Visitor = mongoose.models.Visitor || mongoose.model('Visitor', new mongoose.Schema({
+  date: String,
+  count: { type: Number, default: 1 }
+}));
+
 app.use(async (req, res, next) => {
   if (req.path === '/') {
     try {
       const today = new Date().toISOString().split('T')[0];
-      await mongoose.model('Visitor', new mongoose.Schema({ date: String, count: Number }))
-        .findOneAndUpdate({ date: today }, { $inc: { count: 1 } }, { upsert: true });
+      await Visitor.findOneAndUpdate(
+        { date: today },
+        { $inc: { count: 1 } },
+        { upsert: true }
+      );
     } catch (e) {
-      console.error("Visitor error:", e.message);
+      console.error("Visitor counter error:", e.message);
     }
   }
   next();
